@@ -11,22 +11,17 @@ namespace nmos6502 {
 	typedef boost::int16_t int16;
 
 
-	/** \brief Set bit in position \a p
+	/** \brief Set bit in position \a p to \a val
 	 *
 	 * \param x Integer to set bit in
 	 * \param p Position of bit to be set (starting from 0)
+	 * \param val Value to set bit to (either 0 or 1)
 	 */
 	template<typename T>
-	inline void set(T& x, int p) {x |= 1<<p;}
-
-	/** \brief Unset bit in position \a p
-	 *
-	 * \param x Integer to unset bit in
-	 * \param p Position of bit to be unset (starting from 0)
-	 */
-	template<typename T>
-	inline void unset(T& x, int p) {x &= ~(1<<p);}
-
+	inline void set(T& x, int p, bool val) {
+		if (val) x |= 1<<p;
+		else x &= ~(1<<p);
+	}
 	/** \brief Check if bit in \a x at position \a p is set
 	 *
 	 * \param x Integer to check bit in

@@ -64,10 +64,12 @@ namespace nmos6502 {
 		 * \param addr Address in memory to read.
 		 * \return Data located at \a addr.
 		 */
+
 		uint8 r8(uint16 addr);
+
 		/** \brief Write 1 byte of memory observing any memory mapping.
 		 *
-		 * \param addr Address in memory to read.
+		 * \param addr Address in memory to write.
 		 * \param data Data to write at \a addr
 		 */
 		void w8(uint16 addr, uint8 data);
