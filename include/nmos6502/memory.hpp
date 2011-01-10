@@ -13,6 +13,52 @@ namespace nmos6502 {
 
 		Memory();
 
+		/** \brief Load data into memory.
+		 *
+		 * Loads data into memory, does not observe memory mapping. Useful to load code into memory.
+		 *
+		 * \param start Start of where to load data.
+		 * \param size Size of data to load, in bytes.
+		 * \param data Pointer to data
+		 */
+		void load(uint16 start, int size, void* data);
+
+		/** \brief Set the IRQ vector. Observes memory mapping.
+		 *
+		 * \param addr Address to set IRQ vector to
+		 */
+		void setIRQ(uint16 addr);
+
+		/** \brief Set the NMI vector.  Observes memory mapping.
+		 *
+		 * \param addr Address to set NMI vector to
+		 */
+		void setNMI(uint16 addr);
+
+		/** \brief Set the reset vector.  Observes memory mapping.
+		 *
+		 * \param addr Address to set reset vector to
+		 */
+		void setReset(uint16 addr);
+
+		/** \brief Get the IRQ vector. Observes memory mapping.
+		 *
+		 * \return IRQ vector.
+		 */
+		uint16 getIRQ();
+
+		/** \brief Get the NMI vector.  Observes memory mapping.
+		 *
+		 * \return NMI vector.
+		 */
+		uint16 getNMI();
+
+		/** \brief Get the reset vector.  Observes memory mapping.
+		 *
+		 * \return reset vector.
+		 */
+		uint16 getReset();
+
 		/** \brief Read 1 byte of memory observing any memory mapping.
 		 *
 		 * \param addr Address in memory to read.

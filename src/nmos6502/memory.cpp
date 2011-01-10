@@ -11,6 +11,37 @@ namespace nmos6502 {
 		}
 	}
 
+	void Memory::load(uint16 start, int size, void* data) {
+		memcpy(&m[start], data, size);
+	}
+
+	void Memory::setIRQ(uint16 addr) {
+		w8(0xFFFE, getlo(addr));
+		w8(0xFFFF, gethi(addr));
+	}
+
+	void Memory::setNMI(uint16 addr) {
+		w8(0xFFFA, getlo(addr));
+		w8(0xFFFB, gethi(addr));
+	}
+
+	void Memory::setReset(uint16 addr) {
+		w8(0xFFFC, getlo(addr));
+		w8(0xFFFD, gethi(addr));
+	}
+
+	uint16 Memory::getIRQ() {
+		return join(r8(0xFFFE), r8(0xFFFF));
+	}
+
+	uint16 Memory::getNMI() {
+		return join(r8(0xFFFA), r8(0xFFFB));
+	}
+
+	uint16 Memory::getReset() {
+		return join(r8(0xFFFC), r8(0xFFFD));
+	}
+
 	uint8 Memory::r8(uint16 addr) {
 		if (r_cb[addr] == NULL) return m[addr];
 		return r_cb[addr](m, addr, r_cb_udata[addr]);

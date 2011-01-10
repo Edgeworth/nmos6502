@@ -1,14 +1,14 @@
 #ifndef NMOS6502_CPU_HPP_
-#define NMOS6502_CPP_HPP_
+#define NMOS6502_CPU_HPP_
 #include "nmos6502/common.hpp"
 #include "nmos6502/memory.hpp"
 
 namespace nmos6502 {
 
-	/** \brief This enum is used in conjunction with set, unset and get */
+	/** \brief This enum is used in conjunction with set, unset and isset */
 	enum {
 		FCARRY,
-		FZERO,
+		FZERO, ///< Pretty cool game
 		FINT,
 		FBCD,
 		FBRK,
@@ -20,7 +20,7 @@ namespace nmos6502 {
 
 	class CPU {
 	public:
-		int8 A; ///< Accumulator register
+		uint8 A; ///< Accumulator register
 		uint8 X; ///< X index register
 		uint8 Y; ///< Y index register
 		uint8 SP; ///< Stack pointer
@@ -40,19 +40,20 @@ namespace nmos6502 {
 		 */
 		uint8 P;
 		uint16 PC; ///< Program counter
+		Memory m; ///< CPU memory
 
 		long long cycles; ///< Cycles since reset()
 
 		CPU();
 
-		/** \brief Run the cpu for at most \a max_cycles cycles.
+		/** \brief Run the cpu for at least \a min_cycles cycles.
 		 *
-		 * \param max_cycles The number of cycles to run the cpu at most for.
+		 * \param min_cycles The number of cycles to run the cpu at least for.
 		 *
 		 * \return The actual number of cycles executed.
 		 * \sa step
 		 */
-		int run(int max_cycles);
+		int run(int min_cycles);
 
 		/** \brief Run the cpu for one instruction.
 		 *
@@ -74,7 +75,7 @@ namespace nmos6502 {
 		 * -# The I flag is set
 		 *
 		 * \return The number of cycles executed
-		 * \sa brk, nmi, reset
+		 * \sa nmi, reset
 		 */
 		int irq();
 
@@ -84,7 +85,7 @@ namespace nmos6502 {
 		 * blocked by the interrupt disable flag.
 		 *
 		 * \return The number of cycles executed
-		 * \sa brk, irq, reset
+		 * \sa irq, reset
 		 */
 		int nmi();
 
@@ -99,11 +100,20 @@ namespace nmos6502 {
 		 * -# The PC is set to the reset vector
 		 *
 		 * \return The number of cycles executed
-		 * \sa brk, irq, nmi
+		 * \sa irq, nmi
 		 */
 		int reset();
 
 	private:
+		bool _ready; ///< False until reset is called.
+
+		void push8(uint8 x);
+		void push16(uint16 x);
+		uint8 pop8();
+		uint16 pop16();
+		uint8 fetch();
+
+		friend class InstructionSet;
 	};
 
 }
