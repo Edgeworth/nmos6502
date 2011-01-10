@@ -5,6 +5,19 @@
 
 namespace nmos6502 {
 
+	/** \brief This enum is used in conjunction with set, unset and get */
+	enum {
+		FCARRY,
+		FZERO,
+		FINT,
+		FBCD,
+		FBRK,
+		FUNUSED,
+		FOVER,
+		FNEG
+	};
+
+
 	class CPU {
 	public:
 		int8 A; ///< Accumulator register
@@ -28,17 +41,18 @@ namespace nmos6502 {
 		uint8 P;
 		uint16 PC; ///< Program counter
 
+		long long cycles; ///< Cycles since reset()
 
 		CPU();
 
-		/** \brief Run the cpu for at most \a cycles cycles.
+		/** \brief Run the cpu for at most \a max_cycles cycles.
 		 *
-		 * \param cycles The number of cycles to run the cpu at most for.
+		 * \param max_cycles The number of cycles to run the cpu at most for.
 		 *
 		 * \return The actual number of cycles executed.
 		 * \sa step
 		 */
-		int run(int cycles);
+		int run(int max_cycles);
 
 		/** \brief Run the cpu for one instruction.
 		 *

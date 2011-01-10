@@ -11,6 +11,7 @@ namespace nmos6502 {
 	public:
 		uint8 m[1<<16]; ///< 64 KB of memory
 
+		Memory();
 
 		/** \brief Read 1 byte of memory observing any memory mapping.
 		 *
