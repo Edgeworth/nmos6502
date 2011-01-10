@@ -23,7 +23,7 @@ namespace nmos6502 {
 		push16(PC);
 		push8(P);
 		PC = m.getIRQ();
-		set(P, FINT);
+		set(P, FINT, 1);
 		cycles += 7; //IRQ overhead is 7 cycles
 		return 7;
 	}
@@ -32,7 +32,7 @@ namespace nmos6502 {
 		push16(PC);
 		push8(P);
 		PC = m.getNMI();
-		set(P, FINT);
+		set(P, FINT, 1);
 		cycles += 7; //IRQ overhead is 7 cycles
 		return 7;
 	}
@@ -41,8 +41,8 @@ namespace nmos6502 {
 		_ready = true;
 		cycles = 0;
 		SP -= 3; //reset is implemented as a hacked brk instruction -- 3 stack pushes are done, but nothing is pushed.
-		set(P, FINT);
-		set(P, FBRK);
+		set(P, FINT, 1);
+		set(P, FBRK, 1);
 		PC = m.getReset();
 		cycles += 7; //IRQ overhead is 7 cycles
 		return 7;
