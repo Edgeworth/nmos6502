@@ -9,7 +9,7 @@ find_package(Boost REQUIRED)
 
 file(GLOB_RECURSE SOURCE ${PREFIX}/src/*.cpp)
 include_directories(${PREFIX}/include/ ${Boost_INCLUDE_DIRS})
-add_definitions('-Wall' '-Wextra' '-pedantic' '-ansi')
+add_definitions('-Wall' '-Wextra' '-ansi')
 
 add_executable(main ${SOURCE})
 #target_link_libraries(main)
