@@ -438,6 +438,11 @@ namespace nmos6502 {
 
 	//bit, Zero Page
 	int InstructionSet::bit_zpg(CPU& cpu) {
+		uint8 val = cpu.m.r8(cpu.fetch());
+		set(cpu.P, FOVER, isset(val, 6));
+		set(cpu.P, FNEG, isset(val, 7));
+		set(cpu.P, FZERO, (cpu.A&val));
+		return 3;
 	}
 
 	//and, Zero Page
@@ -449,10 +454,21 @@ namespace nmos6502 {
 
 	//rol, Zero Page
 	int InstructionSet::rol_zpg(CPU& cpu) {
+		uint8 addr = cpu.fetch();
+		uint8 val = cpu.m.r8(addr);
+		bool newcarry = isset(val, 7);
+		val <<= 1;
+		set(val, 0, isset(cpu.P, FCARRY));
+		set(cpu.P, FCARRY, newcarry);
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 5;
 	}
 
 	//plp, Implied
 	int InstructionSet::plp_imp(CPU& cpu) {
+		cpu.P = cpu.pop8();
+		return 4;
 	}
 
 	//and, Immediate
@@ -464,10 +480,22 @@ namespace nmos6502 {
 
 	//rol, Accumulator
 	int InstructionSet::rol_imp(CPU& cpu) {
+		bool newcarry = isset(cpu.A, 7);
+		cpu.A <<= 1;
+		set(cpu.A, 0, isset(cpu.P, FCARRY));
+		set(cpu.P, FCARRY, newcarry);
+		SET_ZN(cpu.A);
+		return 2;
 	}
 
 	//bit, Absolute
 	int InstructionSet::bit_abs(CPU& cpu) {
+		uint8 lo = cpu.fetch(); hi = cpu.fetch();
+		uint8 val = cpu.m.r8(join(lo, hi));
+		set(cpu.P, FOVER, isset(val, 6));
+		set(cpu.P, FNEG, isset(val, 7));
+		set(cpu.P, FZERO, (cpu.A&val));
+		return 4;
 	}
 
 	//and, Absolute
@@ -480,10 +508,25 @@ namespace nmos6502 {
 
 	//rol, Absolute
 	int InstructionSet::rol_abs(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi);
+		uint8 val = cpu.m.r8(addr);
+		bool newcarry = isset(val, 7);
+		val <<= 1;
+		set(val, 0, isset(cpu.P, FCARRY));
+		set(cpu.P, FCARRY, newcarry);
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 6;
 	}
 
 	//bmi, Relative
 	int InstructionSet::bmi_rel(CPU& cpu) {
+		int8 rel = cpu.fetch();
+		if (!isset(cpu.P, FNEG)) return 2;
+		bool page = PAGE_CROSSED(cpu.PC, int16(cpu.PC)+rel);
+		cpu.PC = int16(cpu.PC)+rel;
+		return 3+page;
 	}
 
 	//and, (Indirect),Y
@@ -507,10 +550,21 @@ namespace nmos6502 {
 
 	//rol, Zero Page,X
 	int InstructionSet::rol_zpx(CPU& cpu) {
+		uint8 addr = cpu.fetch()+cpu.X; //Wraps
+		uint8 val = cpu.m.r8(addr);
+		bool newcarry = isset(val, 7);
+		val <<= 1;
+		set(val, 0, isset(cpu.P, FCARRY));
+		set(cpu.P, FCARRY, newcarry);
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 6;
 	}
 
 	//sec, Implied
 	int InstructionSet::sec_imp(CPU& cpu) {
+		set(cpu.P, FCARRY, 1);
+		return 2;
 	}
 
 	//and, Absolute,Y
@@ -537,46 +591,97 @@ namespace nmos6502 {
 
 	//rol, Absolute,X
 	int InstructionSet::rol_abx(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi)+cpu.X;
+		uint8 val = cpu.m.r8(addr);
+		bool newcarry = isset(val, 7);
+		val <<= 1;
+		set(val, 0, isset(cpu.P, FCARRY));
+		set(cpu.P, FCARRY, newcarry);
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 7;
 	}
 
 	//rti, Implied
 	int InstructionSet::rti_imp(CPU& cpu) {
+		cpu.P = cpu.pop8();
+		cpu.PC = cpu.pop16();
+		return 6;
 	}
 
 	//eor, (Indirect,X)
 	int InstructionSet::eor_idx(CPU& cpu) {
+		uint8 lo = cpu.fetch()+cpu.X; uint8 hi = lo+1; //Wraps
+		cpu.A |= cpu.m.r8(join(cpu.m.r8(lo), cpu.m.r8(hi)));
+		SET_ZN(cpu.A);
+		return 6;
 	}
 
 	//eor, Zero Page
 	int InstructionSet::eor_zpg(CPU& cpu) {
+		cpu.A |= cpu.m.r8(cpu.fetch());
+		SET_ZN(cpu.A);
+		return 3;
 	}
 
 	//lsr, Zero Page
 	int InstructionSet::lsr_zpg(CPU& cpu) {
+		uint8 addr = cpu.fetch();
+		uint8 val = cpu.m.r8(addr);
+		set(cpu.P, FCARRY, isset(val, 0));
+		val >>= 1;
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 5;
 	}
 
 	//pha, Implied
 	int InstructionSet::pha_imp(CPU& cpu) {
+		cpu.push8(cpu.A);
+		return 3;
 	}
 
 	//eor, Immediate
 	int InstructionSet::eor_imm(CPU& cpu) {
+		cpu.A |= cpu.fetch();
+		SET_ZN(cpu.A);
+		return 2;
 	}
 
 	//lsr, Accumulator
 	int InstructionSet::lsr_imp(CPU& cpu) {
+		set(cpu.P, FCARRY, isset(cpu.A, 0));
+		cpu.A >>= 1;
+		SET_ZN(cpu.A);
+		return 2;
 	}
 
 	//jmp, Absolute
 	int InstructionSet::jmp_abs(CPU& cpu) {
+		uint8 lo = cpu.fetch(); hi = cpu.fetch();
+		cpu.PC = join(lo, hi);
+		return 3;
 	}
 
 	//eor, Absolute
 	int InstructionSet::eor_abs(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		cpu.A |= cpu.m.r8(join(lo, hi));
+		SET_ZN(cpu.A);
+		return 4;
 	}
 
 	//lsr, Absolute
 	int InstructionSet::lsr_abs(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi);
+		uint8 val = cpu.m.r8(addr);
+		set(cpu.P, FCARRY, isset(val, 0));
+		val >>= 1;
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 6;
 	}
 
 	//bvc, Relative
@@ -585,14 +690,32 @@ namespace nmos6502 {
 
 	//eor, (Indirect),Y
 	int InstructionSet::eor_idy(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = lo+1;
+		uint8 addr = join(cpu.m.r8(lo), cpu.m.r8(hi));
+
+		bool page = PAGE_CROSSED(addr, addr+cpu.Y);
+		cpu.A |= cpu.m.r8(addr+cpu.Y):
+		SET_ZN(cpu.A);
+		return 5+page;
 	}
 
 	//eor, Zero Page,X
 	int InstructionSet::eor_zpx(CPU& cpu) {
+		uint8 addr = cpu.fetch() + cpu.X; //Wraps
+		cpu.A |= cpu.m.r8(addr);
+		SET_ZN(cpu.A);
+		return 4;
 	}
 
 	//lsr, Zero Page,X
 	int InstructionSet::lsr_zpx(CPU& cpu) {
+		uint8 addr = cpu.fetch() + cpu.X; //Wraps
+		uint8 val = cpu.m.r8(addr);
+		set(cpu.P, FCARRY, isset(val, 0));
+		val >>= 1;
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 6;
 	}
 
 	//cli, Implied
@@ -601,14 +724,36 @@ namespace nmos6502 {
 
 	//eor, Absolute,Y
 	int InstructionSet::eor_aby(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi);
+
+		bool page = PAGE_CROSSED(addr, addr+cpu.Y);
+		cpu.A |= cpu.m.r8(addr+cpu.Y);
+		SET_ZN(cpu.A);
+		return 4+page;
 	}
 
 	//eor, Absolute,X
 	int InstructionSet::eor_abx(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi);
+
+		bool page = PAGE_CROSSED(addr, addr+cpu.X);
+		cpu.A |= cpu.m.r8(addr+cpu.X);
+		SET_ZN(cpu.A);
+		return 4+page;
 	}
 
 	//lsr, Absolute,X
 	int InstructionSet::lsr_abx(CPU& cpu) {
+		uint8 lo = cpu.fetch(); uint8 hi = cpu.fetch();
+		uint16 addr = join(lo, hi) + cpu.X;
+		uint8 val = cpu.m.r8(addr);
+		set(cpu.P, FCARRY, isset(val, 0));
+		val >>= 1;
+		cpu.m.w8(addr, val);
+		SET_ZN(val);
+		return 7;
 	}
 
 	//rts, Implied
