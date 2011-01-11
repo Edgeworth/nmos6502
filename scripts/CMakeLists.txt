@@ -9,7 +9,8 @@ find_package(Boost REQUIRED)
 
 file(GLOB_RECURSE SOURCE ${PREFIX}/src/*.cpp)
 include_directories(${PREFIX}/include/ ${Boost_INCLUDE_DIRS})
-add_definitions('-Wall' '-Wextra' '-ansi')
+add_definitions('-Wall' '-Wextra' '-ansi' '-O2')
+#set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} '-pg')
 
 add_executable(main ${SOURCE})
 #target_link_libraries(main)

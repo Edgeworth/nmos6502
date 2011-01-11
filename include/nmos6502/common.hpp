@@ -1,7 +1,5 @@
 #ifndef NMOS6502_COMMON_HPP_
 #define NMOS6502_COMMON_HPP_
-#include <cstring>
-#include <cstdio>
 #include "boost/cstdint.hpp"
 
 namespace nmos6502 {

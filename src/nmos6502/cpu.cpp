@@ -1,6 +1,8 @@
 #include "nmos6502/cpu.hpp"
 #include "nmos6502/instructions.hpp"
 
+#include <cstdio>
+
 namespace nmos6502 {
 	//Zero flag initially set to 1
 	CPU::CPU() : A(0xAA), X(0), Y(0), SP(0), P(2), PC(0), cycles(0), _ready(false) {}
@@ -18,7 +20,7 @@ namespace nmos6502 {
 			printf("Unknown opcode: %d\n", opcode);
 			exit(1);
 		}
-		int executed_cycles = opcodes[fetch()](*this);
+		int executed_cycles = opcodes[opcode](*this);
 		cycles += executed_cycles;
 		return executed_cycles;
 	}
@@ -53,26 +55,4 @@ namespace nmos6502 {
 		return 7;
 	}
 
-	void CPU::push8(uint8 x) {
-		m.w8(SP--, x);
-	}
-
-	void CPU::push16(uint16 x) {
-		push8(gethi(x));
-		push8(getlo(x));
-	}
-
-	uint8 CPU::pop8() {
-		return m.r8(++SP);
-	}
-
-	uint16 CPU::pop16() {
-		uint8 lo = pop8();
-		uint8 hi = pop8();
-		return join(lo, hi);
-	}
-
-	uint8 CPU::fetch() {
-		return m.r8(PC++);
-	}
 }
