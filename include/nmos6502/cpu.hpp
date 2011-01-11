@@ -107,11 +107,22 @@ namespace nmos6502 {
 	private:
 		bool _ready; ///< False until reset is called.
 
-		void push8(uint8 x);
-		void push16(uint16 x);
-		uint8 pop8();
-		uint16 pop16();
-		uint8 fetch();
+		void push8(uint8 x) {m.w8(SP--, x);}
+
+		void push16(uint16 x) {
+			push8(gethi(x));
+			push8(getlo(x));
+		}
+
+		uint8 pop8() {return m.r8(++SP);}
+
+		uint16 pop16() {
+			uint8 lo = pop8();
+			uint8 hi = pop8();
+			return join(lo, hi);
+		}
+
+		uint8 fetch() {return m.r8(PC++);}
 
 		friend class InstructionSet;
 	};

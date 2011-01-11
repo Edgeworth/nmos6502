@@ -7,3 +7,5 @@
 /scripts/Doxyfile
 /doc/
 /doc/*
+/rom.bin
+/basic.rom

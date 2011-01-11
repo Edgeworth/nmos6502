@@ -1,3 +1,4 @@
+#include <cstring>
 #include "nmos6502/memory.hpp"
 
 namespace nmos6502 {
@@ -40,19 +41,6 @@ namespace nmos6502 {
 
 	uint16 Memory::getReset() {
 		return join(r8(0xFFFC), r8(0xFFFD));
-	}
-
-	uint8 Memory::r8(uint16 addr) {
-		if (r_cb[addr] == NULL) return m[addr];
-		return r_cb[addr](m, addr, r_cb_udata[addr]);
-	}
-
-	void Memory::w8(uint16 addr, uint8 data) {
-		if (w_cb[addr] == NULL) {
-			m[addr] = data;
-			return;
-		}
-		w_cb[addr](m, addr, data, w_cb_udata[addr]);
 	}
 
 	void Memory::setReadCB(uint16 start, uint16 end, readCB cb, void* userdata) {
