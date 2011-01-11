@@ -13,6 +13,11 @@ namespace nmos6502 {
 
 	int CPU::step() {
 		if (!_ready) reset(); //If the CPU isn't ready, reset it.
+		uint8 opcode = fetch();
+		if (opcodes[opcode] == NULL) {
+			printf("Unknown opcode: %d\n", opcode);
+			exit(1);
+		}
 		int executed_cycles = opcodes[fetch()](*this);
 		cycles += executed_cycles;
 		return executed_cycles;
