@@ -4,8 +4,8 @@
 #include <cstdio>
 
 namespace nmos6502 {
-	//Zero flag initially set to 1
-	CPU::CPU() : A(0xAA), X(0), Y(0), SP(0), P(2), PC(0), cycles(0), _ready(false) {}
+	//Zero flag initially set to 1, unused flag is 1 as well
+	CPU::CPU() : A(0xAA), X(0), Y(0), SP(0), P(34), PC(0), cycles(0), _ready(false) {}
 
 	int CPU::run(int min_cycles) {
 		int executed_cycles = 0;
