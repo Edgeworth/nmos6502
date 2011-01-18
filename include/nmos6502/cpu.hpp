@@ -107,14 +107,14 @@ namespace nmos6502 {
 	private:
 		bool _ready; ///< False until reset is called.
 
-		void push8(uint8 x) {m.w8(SP--, x);}
+		void push8(uint8 x) {m.w8(0x100+(SP--), x);}
 
 		void push16(uint16 x) {
 			push8(gethi(x));
 			push8(getlo(x));
 		}
 
-		uint8 pop8() {return m.r8(++SP);}
+		uint8 pop8() {return m.r8(0x100+(++SP));}
 
 		uint16 pop16() {
 			uint8 lo = pop8();
