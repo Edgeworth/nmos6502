@@ -1,0 +1,10 @@
+This is an implementation of an emulator which emulates an NMOS 6502 
+CPU as correctly as possible (including cycles and all that).
+Beware: There are probably many bugs.
+
+
+Required programs and libraries:
+cmake
+Boost
+
+run build.py
